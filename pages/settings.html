@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings | Parul University</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/settings.css">
+</head>
+<body>
+<div class="app">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <img src="../images/parul-emblem.png" alt="Parul University Emblem" class="brand-logo-img">
+      <div class="brand-text">
+        <span class="brand-title">Parul</span>
+        <span class="brand-subtitle">University</span>
+      </div>
+    </div>
+    <nav class="navigation">
+      <a class="nav-item" href="../index.html"><span>▦</span> Dashboard</a>
+      <a class="nav-item" href="live-monitoring.html"><span>◉</span> Live Monitoring</a>
+      <a class="nav-item" href="complaints.html"><span>▤</span> Complaints</a>
+      <a class="nav-item active" href="settings.html"><span>⚙</span> Settings</a>
+    </nav>
+    <div class="sidebar-bottom">
+      <a class="nav-item logout-link" href="#" id="logoutBtn"><span>⇥</span> Login / Logout</a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main">
+    <header class="topbar">
+      <button class="menu-btn" id="menuBtn" aria-label="Toggle menu">☰</button>
+      <h2>Settings</h2>
+      <input class="search" type="search" placeholder="⌕  Search settings...">
+      <div class="top-actions">
+        <div class="profile">
+          <div class="avatar">D</div>
+          <div><strong>Divya Prajapati</strong><small>Admin</small></div>
+        </div>
+      </div>
+    </header>
+
+    <section class="content">
+      <div class="welcome">
+        <div>
+          <p class="eyebrow">CAMPUS MANAGEMENT</p>
+          <h1>Settings</h1>
+          <p class="muted">Manage your account and system preferences.</p>
+        </div>
+      </div>
+
+      <!-- Settings Layout -->
+      <div class="settings-layout">
+        <!-- Sub Navigation -->
+        <div class="settings-nav">
+          <button class="settings-tab-btn active" data-pane="profilePane">
+            <span class="tab-icon">👤</span> Profile
+          </button>
+          <button class="settings-tab-btn" data-pane="systemPane">
+            <span class="tab-icon">⚙</span> System
+          </button>
+          <button class="settings-tab-btn" data-pane="securityPane">
+            <span class="tab-icon">🔒</span> Security
+          </button>
+          <button class="settings-tab-btn" data-pane="helpPane">
+            <span class="tab-icon">❓</span> Help & Support
+          </button>
+        </div>
+
+        <!-- Content Area -->
+        <div class="settings-content-panel">
+          <div class="toast-feedback" id="settingsToast"></div>
+
+          <!-- Profile Pane (Matching Screen 7) -->
+          <div class="settings-tab-pane active" id="profilePane">
+            <h3 class="settings-section-title">Profile Settings</h3>
+
+            <div class="avatar-uploader-row">
+              <div class="avatar-large">D</div>
+              <div>
+                <button type="button" class="btn-secondary" id="changePhotoBtn">Set Avatar Initial</button>
+                <small class="muted">Avatar initial is synced with your account profile.</small>
+              </div>
+            </div>
+
+            <form id="profileSettingsForm">
+              <div class="form-group">
+                <label for="profileName">Name</label>
+                <input class="form-input" id="profileName" type="text" value="Divya Prajapati" required>
+              </div>
+
+              <div class="form-group">
+                <label for="profileEmail">Email</label>
+                <input class="form-input" id="profileEmail" type="email" value="divya@paruluniversity.ac.in" required>
+              </div>
+
+              <div class="form-group">
+                <label for="profileRole">Role</label>
+                <select class="form-select" id="profileRole">
+                  <option value="Admin" selected>Admin</option>
+                  <option value="Staff">Campus Staff</option>
+                  <option value="Faculty">Faculty</option>
+                  <option value="Support">Support Desk</option>
+                </select>
+              </div>
+
+              <div style="margin-top:24px;">
+                <button type="submit" class="btn-primary">Save Changes</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- System Pane -->
+          <div class="settings-tab-pane" id="systemPane">
+            <h3 class="settings-section-title">System Settings</h3>
+            <p class="muted">Preferences are saved in this browser; no live refresh service is connected.</p>
+            <form id="systemSettingsForm">
+            <div class="form-group">
+              <label>Campus Timezone</label>
+              <input class="form-input" type="text" value="Asia/Kolkata (IST +5:30)" readonly>
+            </div>
+            <div class="form-group">
+              <label>Default Refresh Interval</label>
+              <select class="form-select" id="refreshInterval">
+                <option value="30s">Every 30 seconds</option>
+                <option value="1m" selected>Every 1 minute</option>
+                <option value="5m">Every 5 minutes</option>
+              </select>
+            </div>
+            <button type="submit" class="btn-primary">Save Preferences</button>
+            </form>
+          </div>
+
+          <!-- Security Pane -->
+          <div class="settings-tab-pane" id="securityPane">
+            <h3 class="settings-section-title">Security & Password</h3>
+            <p class="muted">Update your account login security settings.</p>
+            <form id="passwordSettingsForm">
+            <div class="form-group">
+              <label>Current Password</label>
+              <input class="form-input" type="password" autocomplete="current-password" required>
+            </div>
+            <div class="form-group">
+              <label>New Password</label>
+              <input class="form-input" type="password" autocomplete="new-password" minlength="8" required>
+            </div>
+            <button class="btn-primary" type="submit">Update Password</button>
+            </form>
+          </div>
+
+          <!-- Help & Support Pane -->
+          <div class="settings-tab-pane" id="helpPane">
+            <h3 class="settings-section-title">Help & Support</h3>
+            <p>Need assistance with the Smart Campus Management portal?</p>
+            <p class="muted">Helpline: <a href="tel:+912668260300">+91 2668 260300</a><br>IT Support: <a href="mailto:itsupport@paruluniversity.ac.in">itsupport@paruluniversity.ac.in</a></p>
+          </div>
+        </div>
+      </div>
+
+      <footer>Smart Campus Complaint Management System</footer>
+    </section>
+  </main>
+</div>
+
+<script src="../js/common.js"></script>
+<script src="../js/settings.js"></script>
+</body>
+</html>

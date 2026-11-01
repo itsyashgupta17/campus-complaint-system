@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Monitoring | Parul University</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/live-monitoring.css">
+</head>
+<body>
+<div class="app">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <img src="../images/parul-emblem.png" alt="Parul University Emblem" class="brand-logo-img">
+      <div class="brand-text">
+        <span class="brand-title">Parul</span>
+        <span class="brand-subtitle">University</span>
+      </div>
+    </div>
+    <nav class="navigation">
+      <a class="nav-item" href="../index.html"><span>▦</span> Dashboard</a>
+      <a class="nav-item active" href="live-monitoring.html"><span>◉</span> Live Monitoring</a>
+      <a class="nav-item" href="complaints.html"><span>▤</span> Complaints</a>
+      <a class="nav-item" href="settings.html"><span>⚙</span> Settings</a>
+    </nav>
+    <div class="sidebar-bottom">
+      <a class="nav-item logout-link" href="#" id="logoutBtn"><span>⇥</span> Login / Logout</a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main">
+    <header class="topbar">
+      <button class="menu-btn" id="menuBtn" aria-label="Toggle menu">☰</button>
+      <h2>Live Monitoring</h2>
+      <input class="search" id="liveSearchInput" type="search" placeholder="⌕  Search services...">
+      <div class="top-actions">
+        <div class="profile">
+          <div class="avatar">D</div>
+          <div><strong>Divya Prajapati</strong><small>Admin</small></div>
+        </div>
+      </div>
+    </header>
+
+    <section class="content">
+      <div class="welcome">
+        <div>
+          <p class="eyebrow">CAMPUS MANAGEMENT</p>
+          <h1>Live Monitoring</h1>
+          <p class="muted">Live status overview of campus facilities and block operations.</p>
+        </div>
+        <div class="live-badge">
+          <span class="live-pulse"></span> Active status
+        </div>
+      </div>
+
+      <!-- Facility Status Cards -->
+      <section class="facility-grid">
+        <!-- Wi-Fi -->
+        <article class="facility-card">
+          <div class="facility-header">
+            <div class="facility-title-wrap">
+              <span class="facility-icon">📶</span>
+              <span>Wi-Fi</span>
+            </div>
+            <span class="pill-status pill-online">● Online</span>
+          </div>
+          <p class="facility-subtext">All blocks working</p>
+        </article>
+
+        <!-- Electricity -->
+        <article class="facility-card">
+          <div class="facility-header">
+            <div class="facility-title-wrap">
+              <span class="facility-icon">⚡</span>
+              <span>Electricity</span>
+            </div>
+            <span class="pill-status pill-online">● Online</span>
+          </div>
+          <p class="facility-subtext">No issues</p>
+        </article>
+
+        <!-- Water Supply -->
+        <article class="facility-card">
+          <div class="facility-header">
+            <div class="facility-title-wrap">
+              <span class="facility-icon">💧</span>
+              <span>Water Supply</span>
+            </div>
+            <span class="pill-status pill-online">● Online</span>
+          </div>
+          <p class="facility-subtext">All faculty & hostel RO active</p>
+        </article>
+
+        <!-- CCTV -->
+        <article class="facility-card">
+          <div class="facility-header">
+            <div class="facility-title-wrap">
+              <span class="facility-icon">📹</span>
+              <span>CCTV</span>
+            </div>
+            <span class="pill-status pill-online">● Online</span>
+          </div>
+          <p class="facility-subtext">All cameras active</p>
+        </article>
+      </section>
+
+      <!-- Main Map and Alerts Section -->
+      <section class="live-main-grid">
+        <!-- Live Campus Map -->
+        <div class="map-panel">
+          <div class="panel-heading" style="display:flex;justify-content:space-between;align-items:center;">
+            <h3>Parul University Campus Map</h3>
+            <a href="https://maps.google.com/?q=Parul+University+Vadodara" target="_blank" rel="noopener noreferrer" class="text-link" style="font-size:12px;">Open in Google Maps ↗</a>
+          </div>
+          <div class="map-container" style="padding:0;overflow:hidden;border:none;">
+            <iframe 
+              src="https://maps.google.com/maps?q=Parul%20University,%20Limda,%20Waghodia,%20Vadodara,%20Gujarat&t=&z=16&ie=UTF8&iwloc=&output=embed" 
+              width="100%" 
+              height="440" 
+              style="border:0; border-radius:8px; display:block;" 
+              allowfullscreen="" 
+              loading="lazy" 
+              referrerpolicy="no-referrer-when-downgrade"
+              title="Parul University Campus Map">
+            </iframe>
+          </div>
+        </div>
+
+        <!-- Recent Campus Alerts -->
+        <div class="alerts-panel">
+          <div class="panel-heading">
+            <h3>Recent Campus Alerts</h3>
+          </div>
+          <div class="alerts-list">
+            <!-- Alert 1 -->
+            <div class="alert-item alert-success">
+              <div class="alert-icon-box">✓</div>
+              <div class="alert-content">
+                <p class="alert-title">Wi-Fi bandwidth upgraded at Faculty of Engineering (PIET)</p>
+                <span class="alert-time">10:24 AM</span>
+              </div>
+            </div>
+
+            <!-- Alert 2 -->
+            <div class="alert-item alert-success">
+              <div class="alert-icon-box">✓</div>
+              <div class="alert-content">
+                <p class="alert-title">AC inspection completed at Central Library</p>
+                <span class="alert-time">09:12 AM</span>
+              </div>
+            </div>
+
+            <!-- Alert 3 -->
+            <div class="alert-item alert-success">
+              <div class="alert-icon-box">✓</div>
+              <div class="alert-content">
+                <p class="alert-title">RO water purifiers checked at Tagore Hostel</p>
+                <span class="alert-time">08:45 AM</span>
+              </div>
+            </div>
+
+            <!-- Alert 4 -->
+            <div class="alert-item alert-info">
+              <div class="alert-icon-box">ℹ</div>
+              <div class="alert-content">
+                <p class="alert-title">Campus security patrol completed across Sports Arena & Food Court</p>
+                <span class="alert-time">08:30 AM</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer>Smart Campus Complaint Management System</footer>
+    </section>
+  </main>
+</div>
+
+<script src="../js/common.js"></script>
+<script src="../js/live-monitoring.js"></script>
+</body>
+</html>

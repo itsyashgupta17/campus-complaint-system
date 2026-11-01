@@ -1,0 +1,236 @@
+/* Live Monitoring Page Styles */
+
+.live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #e6f9f0;
+  color: #128a55;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 20px;
+}
+
+.live-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 0 rgba(16, 185, 129, 0.4);
+}
+
+/* 4-column facility status cards */
+.facility-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.facility-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 18px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.facility-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.facility-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 14px;
+  color: #1e293b;
+}
+
+.facility-icon {
+  font-size: 16px;
+}
+
+.pill-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 12px;
+}
+
+.pill-online {
+  background: #eafaf1;
+  color: #198754;
+}
+
+.pill-partial {
+  background: #fff8e6;
+  color: #d97706;
+}
+
+.facility-subtext {
+  font-size: 11px;
+  color: var(--muted);
+  margin: 0;
+}
+
+/* Two-column layout for Map & Alerts */
+.live-main-grid {
+  display: grid;
+  grid-template-columns: 2fr 1.1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.map-panel {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.map-container {
+  width: 100%;
+  background: #eef6ed;
+  border-radius: 8px;
+  border: 1px solid #d4e7d1;
+  position: relative;
+  overflow: hidden;
+  min-height: 380px;
+}
+
+.campus-map-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.map-block {
+  cursor: pointer;
+  transition: transform 0.2s, filter 0.2s;
+}
+
+.map-block:hover {
+  filter: brightness(1.05);
+}
+
+.map-block:focus {
+  outline: 2px solid #0649a8;
+  outline-offset: 3px;
+}
+
+.map-tooltip {
+  position: absolute;
+  background: rgba(15, 23, 42, 0.9);
+  color: white;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  pointer-events: none;
+  white-space: pre-line;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 10;
+}
+
+/* Live Alerts Panel */
+.alerts-panel {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.alerts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.alert-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+  transition: transform 0.15s;
+}
+
+.alert-item:hover {
+  transform: translateX(2px);
+}
+
+.alert-icon-box {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.alert-warning .alert-icon-box {
+  background: #fffbeb;
+  color: #d97706;
+  border: 1px solid #fde68a;
+}
+
+.alert-success .alert-icon-box {
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+}
+
+.alert-info .alert-icon-box {
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+}
+
+.alert-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.alert-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 2px;
+}
+
+.alert-time {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+@media (max-width: 1024px) {
+  .facility-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .live-main-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .facility-grid {
+    grid-template-columns: 1fr;
+  }
+}

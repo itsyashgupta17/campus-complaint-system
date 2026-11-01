@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login | Parul University</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/login.css">
+</head>
+<body>
+<div class="auth-wrapper">
+  <div class="auth-container">
+    <div class="login-card">
+      <div class="login-brand-header">
+        <img src="../images/parul-university-logo-transparent.png" alt="Parul University" class="login-logo" onerror="this.src='../images/parul-emblem.png'">
+        <h2 class="login-title">Campus Management System</h2>
+        <p class="login-subtitle">Login to your account</p>
+      </div>
+
+      <div class="login-error-msg" id="loginError"></div>
+
+      <form id="loginForm">
+        <div class="input-with-icon">
+          <span class="input-icon">👤</span>
+          <input type="text" id="loginEmail" aria-label="Email or username" placeholder="Email / Username" value="divya@paruluniversity.ac.in" required>
+        </div>
+
+        <div class="input-with-icon">
+          <span class="input-icon">🔒</span>
+          <input type="password" id="loginPassword" aria-label="Password" placeholder="Password" autocomplete="current-password" required>
+        </div>
+
+        <button type="submit" class="login-btn-full">Sign In</button>
+
+        <div class="login-footer-links">
+          <a href="#" class="forgot-link" id="forgotPasswordLink">Forgot Password?</a>
+        </div>
+      </form>
+
+      <div style="margin-top:20px;">
+        <a href="../index.html" class="text-link">← Return to Dashboard Overview</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../js/common.js"></script>
+<script src="../js/login.js"></script>
+</body>
+</html>
