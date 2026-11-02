@@ -139,7 +139,17 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         raiseModal.classList.remove("active");
         raiseForm.reset();
-        alert(`Complaint successfully saved to MongoDB! (ID: ${created.id})`);
+
+        if (created && created.isLive) {
+          alert(`✅ Success! Complaint saved to MongoDB Atlas!\nID: ${created.id}\nComplainant: ${created.complainant}`);
+        } else {
+          alert(
+            `⚠️ Notice: Render backend is unreachable or waking up.\n\n` +
+            `The complaint was saved LOCALLY in your browser (ID: ${created.id}), but NOT in MongoDB Atlas yet.\n\n` +
+            `Cause: ${created.error || "Connection failed / server sleeping"}\n\n` +
+            `Tip: Open https://campus-complaint-backend-vi2w.onrender.com in a new tab to wake up Render.`
+          );
+        }
         await loadData();
         renderTable();
       } catch (err) {

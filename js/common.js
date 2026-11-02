@@ -4,6 +4,45 @@ const API_BASE =
     ? "http://localhost:5000/api"
     : "https://campus-complaint-backend-vi2w.onrender.com/api";
 
+// Authentication & Session Helpers
+function getAuthUser() {
+  try {
+    const raw = localStorage.getItem("parul_auth_user");
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return parsed && (parsed.email || parsed.token) ? parsed : null;
+  } catch (e) {
+    console.error("Could not parse auth user session:", e);
+    return null;
+  }
+}
+
+function isLoginPage() {
+  const path = (window.location.pathname || "").toLowerCase();
+  const href = (window.location.href || "").toLowerCase();
+  return path.includes("login.html") || href.includes("login.html") || path.endsWith("/login");
+}
+
+function enforceAuthGuard() {
+  const user = getAuthUser();
+  const onLoginPage = isLoginPage();
+
+  // If user is NOT logged in and NOT currently on login page, redirect to login
+  if (!onLoginPage && !user) {
+    const isInsidePages =
+      window.location.pathname.includes("/pages/") ||
+      window.location.pathname.includes("\\pages\\") ||
+      window.location.href.includes("/pages/");
+    const loginUrl = isInsidePages ? "login.html" : "pages/login.html";
+    window.location.replace(loginUrl);
+    return false;
+  }
+  return true;
+}
+
+// Run auth guard check immediately
+enforceAuthGuard();
+
 // Shared Data & State
 const DEFAULT_COMPLAINTS = [];
 
@@ -37,6 +76,16 @@ function saveComplaints(data) {
 var complaints = getComplaints();
 
 // Live MongoDB API Handlers
+async function apiCheckHealth() {
+  try {
+    const rootUrl = API_BASE.replace(/\/api\/?$/, "");
+    const res = await fetch(`${rootUrl}/`, { method: "GET" });
+    return res.ok;
+  } catch (e) {
+    return false;
+  }
+}
+
 async function apiGetComplaints() {
   try {
     const response = await fetch(`${API_BASE}/complaints`, { cache: "no-store" });
@@ -65,7 +114,7 @@ async function apiCreateComplaint(payload) {
     const created = await response.json();
     const current = getComplaints();
     saveComplaints([created, ...current]);
-    return created;
+    return { ...created, isLive: true };
   } catch (err) {
     console.warn("Backend API offline, falling back to local creation:", err.message);
     const current = getComplaints();
@@ -81,7 +130,9 @@ async function apiCreateComplaint(payload) {
       complainant: payload.complainant,
       title: payload.title,
       category: payload.category,
-      status: "Open"
+      status: "Open",
+      isLive: false,
+      error: err.message
     };
     saveComplaints([fallbackComplaint, ...current]);
     return fallbackComplaint;
@@ -151,16 +202,26 @@ function setupCommon() {
 }
 
 function syncProfile() {
-  let profile = { name: "Divya Prajapati", role: "Admin", initial: "D" };
+  const authUser = getAuthUser();
+  let name = authUser?.name || "Divya Prajapati";
+  let role = authUser?.role || "Admin";
+
   try {
     const saved = localStorage.getItem("parul_user_profile");
-    if (saved) profile = { ...profile, ...JSON.parse(saved) };
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (!authUser || (parsed.email && parsed.email.toLowerCase() === authUser.email?.toLowerCase())) {
+        if (parsed.name) name = parsed.name;
+        if (parsed.role) role = parsed.role;
+      }
+    }
   } catch (error) {
     console.error("Could not read the saved browser profile.", error);
   }
-  const initial = profile.initial || profile.name.trim().charAt(0).toUpperCase() || "D";
-  document.querySelectorAll(".profile strong").forEach(el => { el.textContent = profile.name; });
-  document.querySelectorAll(".profile small").forEach(el => { el.textContent = profile.role; });
+
+  const initial = name ? name.trim().charAt(0).toUpperCase() : "D";
+  document.querySelectorAll(".profile strong").forEach(el => { el.textContent = name; });
+  document.querySelectorAll(".profile small").forEach(el => { el.textContent = role; });
   document.querySelectorAll(".avatar, .avatar-large").forEach(el => { el.textContent = initial; });
 }
 
@@ -219,7 +280,7 @@ function setupLogoutModal() {
             </svg>
           </div>
           <h3 class="logout-title">Are you sure you want to logout?</h3>
-          <p class="logout-desc">You will need to login again to access the system.</p>
+          <p class="logout-desc">You will need to enter your verified credentials again to access the portal.</p>
           <div class="logout-btn-group">
             <button class="btn-danger" id="confirmLogoutBtn">Logout</button>
             <button class="btn-secondary" id="cancelLogoutBtn">Cancel</button>
@@ -236,14 +297,16 @@ function setupLogoutModal() {
   const cancelBtn = document.getElementById("cancelLogoutBtn");
 
   // Determine relative path to login.html
-  const isInsidePages = window.location.pathname.includes("/pages/") || window.location.pathname.includes("\\pages\\") || window.location.href.includes("/pages/");
+  const isInsidePages =
+    window.location.pathname.includes("/pages/") ||
+    window.location.pathname.includes("\\pages\\") ||
+    window.location.href.includes("/pages/");
   const loginUrl = isInsidePages ? "login.html" : "pages/login.html";
 
   // Bind click on any logout button or link
   const logoutLinks = document.querySelectorAll(".sidebar-bottom a, .logout-link, #logoutBtn");
   logoutLinks.forEach(link => {
     link.addEventListener("click", (e) => {
-      // If we are already on login page, let it be
       if (window.location.pathname.endsWith("login.html")) return;
       e.preventDefault();
       overlay.classList.add("active");
@@ -262,7 +325,7 @@ function setupLogoutModal() {
     try {
       localStorage.removeItem("parul_auth_user");
     } catch (error) {
-      console.error("Could not clear the demo login from this browser.", error);
+      console.error("Could not clear auth session from browser storage.", error);
     }
     window.location.href = loginUrl;
   });

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login | Parul University</title>
+  <title>Login | Parul University Campus Management</title>
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="../css/login.css">
 </head>
@@ -14,31 +14,87 @@
       <div class="login-brand-header">
         <img src="../images/parul-university-logo-transparent.png" alt="Parul University" class="login-logo" onerror="this.src='../images/parul-emblem.png'">
         <h2 class="login-title">Campus Management System</h2>
-        <p class="login-subtitle">Login to your account</p>
+        <p class="login-subtitle">Secure University Staff & Admin Portal</p>
       </div>
 
-      <div class="login-error-msg" id="loginError"></div>
+      <!-- Tab switchers -->
+      <div class="auth-tabs">
+        <button type="button" class="auth-tab active" id="tabSignIn">Sign In</button>
+        <button type="button" class="auth-tab" id="tabRegister">Create Account</button>
+      </div>
 
+      <!-- Feedback notifications -->
+      <div class="login-error-msg" id="loginError" role="alert"></div>
+      <div class="login-success-msg" id="loginSuccess" role="status"></div>
+
+      <!-- Sign In Form -->
       <form id="loginForm">
         <div class="input-with-icon">
           <span class="input-icon">👤</span>
-          <input type="text" id="loginEmail" aria-label="Email or username" placeholder="Email / Username" value="divya@paruluniversity.ac.in" required>
+          <input type="text" id="loginEmail" aria-label="Email or username" placeholder="Email or Username" value="divya@paruluniversity.ac.in" required autocomplete="username">
         </div>
 
         <div class="input-with-icon">
           <span class="input-icon">🔒</span>
-          <input type="password" id="loginPassword" aria-label="Password" placeholder="Password" autocomplete="current-password" required>
+          <input type="password" id="loginPassword" aria-label="Password" placeholder="Enter your password" autocomplete="current-password" required>
+          <button type="button" class="password-toggle-btn" id="toggleLoginPassword" aria-label="Show or hide password" title="Show/Hide Password">👁️</button>
         </div>
 
-        <button type="submit" class="login-btn-full">Sign In</button>
+        <button type="submit" class="login-btn-full" id="signInSubmitBtn">
+          <span>Sign In to Dashboard</span>
+        </button>
 
         <div class="login-footer-links">
           <a href="#" class="forgot-link" id="forgotPasswordLink">Forgot Password?</a>
         </div>
       </form>
 
-      <div style="margin-top:20px;">
-        <a href="../index.html" class="text-link">← Return to Dashboard Overview</a>
+      <!-- Register / Create Account Form (Hidden by default) -->
+      <form id="registerForm" style="display: none;">
+        <div class="input-with-icon">
+          <span class="input-icon">👤</span>
+          <input type="text" id="regName" aria-label="Full Name" placeholder="Full Name" required autocomplete="name">
+        </div>
+
+        <div class="input-with-icon">
+          <span class="input-icon">✉️</span>
+          <input type="email" id="regEmail" aria-label="Official Email" placeholder="name@paruluniversity.ac.in" required autocomplete="email">
+        </div>
+
+        <div class="input-with-icon">
+          <span class="input-icon">🏷️</span>
+          <select id="regRole" aria-label="Account Role" required>
+            <option value="Admin">Admin</option>
+            <option value="Staff" selected>Staff</option>
+            <option value="Student">Student</option>
+          </select>
+        </div>
+
+        <div class="input-with-icon">
+          <span class="input-icon">🔒</span>
+          <input type="password" id="regPassword" aria-label="Password" placeholder="Password (minimum 6 chars)" minlength="6" required autocomplete="new-password">
+          <button type="button" class="password-toggle-btn" id="toggleRegPassword" aria-label="Show or hide password" title="Show/Hide Password">👁️</button>
+        </div>
+
+        <button type="submit" class="login-btn-full" id="registerSubmitBtn">
+          <span>Create Account</span>
+        </button>
+      </form>
+
+      <!-- Quick Credentials Box for Easy Access -->
+      <div class="credentials-helper-card">
+        <div class="credentials-helper-header">
+          <span class="credentials-helper-title">Default Admin Credentials</span>
+          <button type="button" class="btn-quick-fill" id="btnQuickFill">⚡ Auto-Fill</button>
+        </div>
+        <div class="credentials-details">
+          <span><strong>User:</strong> divya@paruluniversity.ac.in</span>
+          <span><strong>Pass:</strong> Admin@123</span>
+        </div>
+      </div>
+
+      <div class="back-link-wrapper">
+        <a href="../index.html" class="text-link" id="dashboardOverviewLink">← Return to Dashboard Overview</a>
       </div>
     </div>
   </div>

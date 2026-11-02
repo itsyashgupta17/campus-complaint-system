@@ -52,10 +52,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Load saved profile
   const profile = readSettings("parul_user_profile");
+  const authUser = typeof getAuthUser === "function" ? getAuthUser() : null;
   if (profile && typeof profile === "object") {
-    document.getElementById("profileName").value = profile.name || "Divya Prajapati";
-    document.getElementById("profileEmail").value = profile.email || "divya@paruluniversity.ac.in";
-    document.getElementById("profileRole").value = profile.role || "Admin";
+    document.getElementById("profileName").value = profile.name || authUser?.name || "Divya Prajapati";
+    document.getElementById("profileEmail").value = profile.email || authUser?.email || "divya@paruluniversity.ac.in";
+    document.getElementById("profileRole").value = profile.role || authUser?.role || "Admin";
+  } else if (authUser) {
+    document.getElementById("profileName").value = authUser.name || "Divya Prajapati";
+    document.getElementById("profileEmail").value = authUser.email || "divya@paruluniversity.ac.in";
+    document.getElementById("profileRole").value = authUser.role || "Admin";
   }
 
   const systemSettings = readSettings("parul_system_settings");
