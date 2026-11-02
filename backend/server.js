@@ -54,18 +54,6 @@ mongoose
 
     // Seed default admin account if not present
     await seedDefaultAdmin();
-
-    // Remove legacy demo records (#C001 - #C006) so only actual data remains
-    try {
-      const demoResult = await Complaint.deleteMany({
-        id: { $in: ["#C001", "#C002", "#C003", "#C004", "#C005", "#C006"] }
-      });
-      if (demoResult.deletedCount > 0) {
-        console.log(`Cleaned ${demoResult.deletedCount} demo complaints from MongoDB.`);
-      }
-    } catch (cleanErr) {
-      console.warn("Notice during demo cleanup:", cleanErr.message);
-    }
   })
   .catch((error) => {
     console.error("MongoDB Connection Failed!");
@@ -207,9 +195,9 @@ app.post("/api/complaints", async (req, res) => {
       return res.status(400).json({ error: "Complainant, category, and title are required." });
     }
 
-    // Determine the next #Cxxx ID
+    // Determine the next #Cxxx ID (Starts from #C101)
     const allComplaints = await Complaint.find({}, "id");
-    let maxIdNumber = 0;
+    let maxIdNumber = 100;
     allComplaints.forEach((c) => {
       const match = /^#C(\d+)$/.exec(c.id);
       if (match) {

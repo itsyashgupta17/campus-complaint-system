@@ -52,8 +52,7 @@ function getComplaints() {
     if (saved !== null) {
       const complaints = JSON.parse(saved);
       if (Array.isArray(complaints)) {
-        // Exclude any legacy demo records
-        return complaints.filter(c => !["#C001", "#C002", "#C003", "#C004", "#C005", "#C006"].includes(c.id));
+        return complaints;
       }
     }
   } catch (e) {
@@ -121,7 +120,7 @@ async function apiCreateComplaint(payload) {
     const highestId = current.reduce((highest, complaint) => {
       const match = /^#C(\d+)$/.exec(complaint.id);
       return match ? Math.max(highest, Number(match[1])) : highest;
-    }, 0);
+    }, 100);
     const newId = `#C${String(highestId + 1).padStart(3, "0")}`;
     const fallbackComplaint = {
       id: newId,
