@@ -28,17 +28,30 @@ function generateToken(user) {
 // Function to seed default admin user
 async function seedDefaultAdmin() {
   try {
-    const adminEmail = "divya@paruluniversity.ac.in";
-    const existingAdmin = await User.findOne({ email: adminEmail });
+    const adminEmail = "admin@democampus.com";
+    let existingAdmin = await User.findOne({ email: adminEmail });
+
+    // If previously seeded with old email, migrate it to admin@democampus.com
+    if (!existingAdmin) {
+      existingAdmin = await User.findOne({ email: "divya@paruluniversity.ac.in" });
+      if (existingAdmin) {
+        existingAdmin.email = adminEmail;
+        existingAdmin.name = "Demo Admin";
+        await existingAdmin.save();
+        console.log("Migrated default admin to: admin@democampus.com");
+        return;
+      }
+    }
+
     if (!existingAdmin) {
       const defaultAdmin = new User({
-        name: "Divya Prajapati",
+        name: "Demo Admin",
         email: adminEmail,
         password: "Admin@123", // Will be automatically hashed by UserSchema pre-save hook
         role: "Admin"
       });
       await defaultAdmin.save();
-      console.log("Default admin account created: divya@paruluniversity.ac.in / Admin@123");
+      console.log("Default admin account created: admin@democampus.com / Admin@123");
     }
   } catch (err) {
     console.warn("Notice during admin user seeding:", err.message);

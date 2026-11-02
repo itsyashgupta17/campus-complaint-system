@@ -60,7 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (btnQuickFill) {
     btnQuickFill.addEventListener("click", () => {
       if (tabSignIn) tabSignIn.click();
-      if (loginEmail) loginEmail.value = "divya@paruluniversity.ac.in";
+      if (loginEmail) loginEmail.value = "admin@democampus.com";
       if (loginPassword) loginPassword.value = "Admin@123";
       showSuccess("Credentials filled! Click 'Sign In to Dashboard' to proceed.");
     });
@@ -70,7 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (forgotLink) {
     forgotLink.addEventListener("click", (e) => {
       e.preventDefault();
-      showError("Please contact the Parul University Campus IT Helpdesk (support@paruluniversity.ac.in) for credentials recovery.");
+      showError("Please contact support at support@democampus.com for credentials recovery.");
     });
   }
 
@@ -139,13 +139,13 @@ document.addEventListener("DOMContentLoaded", () => {
         u => (u.email.toLowerCase() === email.toLowerCase() || u.name.toLowerCase() === email.toLowerCase()) && u.password === password
       );
       const isDefaultAdmin =
-        (email.toLowerCase() === "divya@paruluniversity.ac.in" || email.toLowerCase() === "divya") &&
+        (email.toLowerCase() === "admin@democampus.com" || email.toLowerCase() === "admin" || email.toLowerCase() === "divya@paruluniversity.ac.in" || email.toLowerCase() === "divya") &&
         password === "Admin@123";
 
       if (isDefaultAdmin || matchedLocal) {
         const userObj = matchedLocal
           ? { id: matchedLocal.id, name: matchedLocal.name, email: matchedLocal.email, role: matchedLocal.role }
-          : { id: "usr_admin_default", name: "Divya Prajapati", email: "divya@paruluniversity.ac.in", role: "Admin" };
+          : { id: "usr_admin_default", name: "Divya Prajapati (Admin)", email: "admin@democampus.com", role: "Admin" };
 
         saveSession(userObj, "verified_session_token_" + Date.now());
         showSuccess("Login successful! Redirecting to dashboard...");
