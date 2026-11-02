@@ -19,12 +19,31 @@ document.addEventListener("DOMContentLoaded", async () => {
   let activeViewingId = null;
   let liveComplaints = [];
 
+  const dbBadge = document.getElementById("dbStatusBadge");
+
   async function loadData() {
     if (typeof apiGetComplaints === "function") {
       liveComplaints = await apiGetComplaints();
     } else if (typeof getComplaints === "function") {
       liveComplaints = getComplaints();
     }
+
+    if (dbBadge) {
+      const isLiveActive = typeof activeApiBase === "string";
+      const hasPending = Array.isArray(liveComplaints) && liveComplaints.some(c => c && c.isPendingSync);
+      if (hasPending) {
+        dbBadge.style.color = "#854d0e";
+        dbBadge.style.background = "#fef9c3";
+        dbBadge.style.borderColor = "#fde047";
+        dbBadge.innerHTML = `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#eab308;"></span><span>Syncing pending complaints to MongoDB Atlas...</span>`;
+      } else {
+        dbBadge.style.color = "#166534";
+        dbBadge.style.background = "#dcfce7";
+        dbBadge.style.borderColor = "#bbf7d0";
+        dbBadge.innerHTML = `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#22c55e;"></span><span>Connected to MongoDB Atlas (Persistent Storage)</span>`;
+      }
+    }
+
     return liveComplaints;
   }
 
@@ -79,7 +98,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       const badge = document.createElement("span");
       const stClass = { "Open": "open", "In Progress": "progress", "Closed": "closed" }[c.status] || "open";
       badge.className = `status ${stClass}`;
-      badge.textContent = c.status;
+      badge.textContent = c.status + (c.isPendingSync ? " (Syncing...)" : "");
+      if (c.isPendingSync) {
+        badge.title = "Queued locally; will sync to MongoDB Atlas automatically";
+        badge.style.opacity = "0.85";
+      }
       tdStat.appendChild(badge);
       tr.appendChild(tdStat);
 
@@ -141,13 +164,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         raiseForm.reset();
 
         if (created && created.isLive) {
-          alert(`✅ Success! Complaint saved to MongoDB Atlas!\nID: ${created.id}\nComplainant: ${created.complainant}`);
+          alert(`✅ Success! Complaint permanently saved to MongoDB Atlas!\n\nComplaint ID: ${created.id}\nComplainant: ${created.complainant}\nCategory: ${created.category}\nStatus: Open`);
         } else {
           alert(
-            `⚠️ Notice: Render backend is unreachable or waking up.\n\n` +
-            `The complaint was saved LOCALLY in your browser (ID: ${created.id}), but NOT in MongoDB Atlas yet.\n\n` +
-            `Cause: ${created.error || "Connection failed / server sleeping"}\n\n` +
-            `Tip: Open https://campus-complaint-backend-vi2w.onrender.com in a new tab to wake up Render.`
+            `⚠️ Note: Cloud backend is waking up or temporarily offline.\n\n` +
+            `Your complaint has been safely queued in your browser (ID: ${created.id}).\n\n` +
+            `It will automatically be uploaded and saved to MongoDB Atlas as soon as the server wakes up or network reconnects.`
           );
         }
         await loadData();

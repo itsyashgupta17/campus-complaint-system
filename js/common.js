@@ -1,8 +1,62 @@
-// Backend API Configuration
-const API_BASE =
-  window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
-    ? "http://localhost:5000/api"
-    : "https://campus-complaint-backend-vi2w.onrender.com/api";
+// Backend API Endpoints (Local server priority, live cloud Render failover)
+const API_ENDPOINTS = [
+  "http://localhost:5000/api",
+  "https://campus-complaint-backend-vi2w.onrender.com/api"
+];
+
+// Active working API URL (persisted so subsequent calls hit the working backend immediately)
+let activeApiBase = (function() {
+  const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+  return isLocal ? "http://localhost:5000/api" : "https://campus-complaint-backend-vi2w.onrender.com/api";
+})();
+
+// Global reference for backward compatibility
+var API_BASE = activeApiBase;
+
+// Helper to execute API requests with automatic failover across local and cloud backends
+async function requestWithFailover(path, options = {}, retries = 1) {
+  const candidates = [
+    activeApiBase,
+    ...API_ENDPOINTS.filter(url => url !== activeApiBase)
+  ];
+
+  let lastError = null;
+
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    for (const baseUrl of candidates) {
+      try {
+        const url = `${baseUrl}${path}`;
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 12000); // 12s timeout for Render cold start
+        const response = await fetch(url, {
+          ...options,
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        if (response.ok) {
+          if (activeApiBase !== baseUrl) {
+            activeApiBase = baseUrl;
+            API_BASE = baseUrl;
+          }
+          return response;
+        }
+
+        // Return immediately if client error (validation, wrong format) rather than failing over
+        if (response.status >= 400 && response.status < 500 && response.status !== 404) {
+          return response;
+        }
+      } catch (err) {
+        lastError = err;
+      }
+    }
+    if (attempt < retries) {
+      await new Promise(resolve => setTimeout(resolve, 1500));
+    }
+  }
+
+  throw lastError || new Error("Unable to connect to backend server.");
+}
 
 // Authentication & Session Helpers
 function getAuthUser() {
@@ -77,8 +131,7 @@ var complaints = getComplaints();
 // Live MongoDB API Handlers
 async function apiCheckHealth() {
   try {
-    const rootUrl = API_BASE.replace(/\/api\/?$/, "");
-    const res = await fetch(`${rootUrl}/`, { method: "GET" });
+    const res = await requestWithFailover("/health", { method: "GET" }, 0);
     return res.ok;
   } catch (e) {
     return false;
@@ -87,12 +140,55 @@ async function apiCheckHealth() {
 
 async function apiGetComplaints() {
   try {
-    const response = await fetch(`${API_BASE}/complaints`, { cache: "no-store" });
+    const response = await requestWithFailover("/complaints", { cache: "no-store" });
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    saveComplaints(data);
-    complaints = data;
-    return data;
+    const serverComplaints = await response.json();
+
+    // Check for any locally pending (unsynced) complaints
+    const local = getComplaints();
+    const pending = local.filter(c => c && c.isPendingSync === true);
+
+    // If there are pending complaints, upload them to MongoDB Atlas now!
+    if (pending.length > 0) {
+      console.log(`[Sync] Uploading ${pending.length} pending complaint(s) to MongoDB Atlas...`);
+      for (const item of pending) {
+        try {
+          const syncRes = await requestWithFailover("/complaints", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              complainant: item.complainant,
+              category: item.category,
+              title: item.title,
+              date: item.date,
+              createdAt: item.createdAt
+            })
+          }, 0);
+          if (syncRes.ok) {
+            const syncedDoc = await syncRes.json();
+            item.isPendingSync = false;
+            item.id = syncedDoc.id;
+            item._id = syncedDoc._id;
+            item.isLive = true;
+            console.log(`[Sync] Successfully saved complaint ${syncedDoc.id} to MongoDB Atlas.`);
+          }
+        } catch (syncErr) {
+          console.warn("[Sync] Retrying complaint upload on next sync:", syncErr.message);
+        }
+      }
+    }
+
+    // Merge: server complaints + any remaining unsynced complaints (never delete unsynced items!)
+    const stillPending = local.filter(c => c && c.isPendingSync === true);
+    const serverIds = new Set(serverComplaints.map(c => c.id));
+    const merged = [
+      ...stillPending.filter(c => !serverIds.has(c.id)),
+      ...serverComplaints
+    ];
+
+    saveComplaints(merged);
+    complaints = merged;
+    return merged;
   } catch (err) {
     console.warn("Backend API offline or unreachable, using local data fallback:", err.message);
     return getComplaints();
@@ -101,21 +197,26 @@ async function apiGetComplaints() {
 
 async function apiCreateComplaint(payload) {
   try {
-    const response = await fetch(`${API_BASE}/complaints`, {
+    // Attempt to permanently save to MongoDB Atlas via backend (with 1 retry for cold start)
+    const response = await requestWithFailover("/complaints", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
-    });
+    }, 1);
+
     if (!response.ok) {
       const err = await response.json().catch(() => ({}));
       throw new Error(err.error || `Failed with status ${response.status}`);
     }
+
     const created = await response.json();
-    const current = getComplaints();
-    saveComplaints([created, ...current]);
+    const current = getComplaints().filter(c => c.id !== created.id);
+    const updated = [created, ...current];
+    saveComplaints(updated);
+    complaints = updated;
     return { ...created, isLive: true };
   } catch (err) {
-    console.warn("Backend API offline, falling back to local creation:", err.message);
+    console.warn("Backend API offline, queueing complaint for auto-sync to MongoDB Atlas:", err.message);
     const current = getComplaints();
     const highestId = current.reduce((highest, complaint) => {
       const match = /^#C(\d+)$/.exec(complaint.id);
@@ -131,16 +232,19 @@ async function apiCreateComplaint(payload) {
       category: payload.category,
       status: "Open",
       isLive: false,
+      isPendingSync: true, // Marked for automatic background upload to MongoDB Atlas
       error: err.message
     };
-    saveComplaints([fallbackComplaint, ...current]);
+    const updated = [fallbackComplaint, ...current];
+    saveComplaints(updated);
+    complaints = updated;
     return fallbackComplaint;
   }
 }
 
 async function apiUpdateComplaintStatus(id, newStatus) {
   try {
-    const response = await fetch(`${API_BASE}/complaints/${encodeURIComponent(id)}/status`, {
+    const response = await requestWithFailover(`/complaints/${encodeURIComponent(id)}/status`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: newStatus })
@@ -158,7 +262,7 @@ async function apiUpdateComplaintStatus(id, newStatus) {
     }
     return updated;
   } catch (err) {
-    console.warn("Backend API offline, falling back to local update:", err.message);
+    console.warn("Backend API offline, saving status change locally:", err.message);
     const current = getComplaints();
     const item = current.find(c => c.id === id);
     if (item) {

@@ -59,6 +59,13 @@ async function seedDefaultAdmin() {
 }
 
 // MongoDB Connection
+mongoose.connection.on("error", (err) => {
+  console.error("MongoDB connection error:", err.message);
+});
+mongoose.connection.on("disconnected", () => {
+  console.warn("MongoDB disconnected.");
+});
+
 mongoose
   .connect(process.env.MONGO_URI)
   .then(async () => {
@@ -189,17 +196,17 @@ app.get("/api/auth/me", async (req, res) => {
 
 // ================= COMPLAINTS ROUTES ================= //
 
-// 1. GET /api/complaints - Get all complaints
+// 1. GET /api/complaints - Get all complaints (sorted strictly newest first by _id)
 app.get("/api/complaints", async (req, res) => {
   try {
-    const complaints = await Complaint.find().sort({ createdAt: -1 });
+    const complaints = await Complaint.find().sort({ _id: -1 });
     res.json(complaints);
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch complaints: " + error.message });
   }
 });
 
-// 2. POST /api/complaints - Create a new complaint
+// 2. POST /api/complaints - Create a new complaint permanently in MongoDB Atlas
 app.post("/api/complaints", async (req, res) => {
   try {
     const { complainant, category, title } = req.body;
@@ -221,21 +228,23 @@ app.post("/api/complaints", async (req, res) => {
     const newId = `#C${String(maxIdNumber + 1).padStart(3, "0")}`;
 
     const now = new Date();
-    const dateFormatted = now.toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
+    const dateFormatted = req.body.date || now.toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
 
     const newComplaint = new Complaint({
       id: newId,
       date: dateFormatted,
-      createdAt: now.toISOString().slice(0, 10),
-      complainant,
-      category,
-      title,
-      status: "Open"
+      createdAt: req.body.createdAt || now.toISOString().slice(0, 10),
+      complainant: complainant.trim(),
+      category: category.trim(),
+      title: title.trim(),
+      status: req.body.status || "Open"
     });
 
     const saved = await newComplaint.save();
+    console.log(`[MongoDB] Created complaint ${saved.id} - ${saved.title} by ${saved.complainant}`);
     res.status(201).json(saved);
   } catch (error) {
+    console.error("[MongoDB] Failed to create complaint:", error.message);
     res.status(400).json({ error: "Failed to create complaint: " + error.message });
   }
 });
@@ -280,9 +289,26 @@ app.delete("/api/complaints/:id", async (req, res) => {
   }
 });
 
-// Root health check route
+// API Health Check
+app.get("/api/health", (req, res) => {
+  res.json({
+    status: "ok",
+    database: mongoose.connection.readyState === 1 ? "connected" : "connecting/disconnected",
+    dbName: mongoose.connection.name
+  });
+});
+
+// Static frontend file serving: Allows running everything from the same origin when served locally
+app.use(express.static(path.join(__dirname, "..")));
+
+// Root route: serve index.html if frontend is requested, or JSON health check
 app.get("/", (req, res) => {
-  res.send("Campus Management System Backend API is running!");
+  const indexPath = path.join(__dirname, "..", "index.html");
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      res.send("Campus Management System Backend API is running!");
+    }
+  });
 });
 
 app.listen(PORT, () => {
